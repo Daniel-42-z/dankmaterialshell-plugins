@@ -1,0 +1,66 @@
+#!/usr/bin/bash
+
+# Usage: shuffle-wallpapers [wallpaper_dir] [interval_in_seconds]
+
+WALLPAPER_DIR="${1:-"$HOME/Pictures"}"
+SHUFFLE_FILE="${WALLPAPER_DIR}/.dms-wallpaper-shuffler/wallpaper_shuffle_list"
+CURRENT_INDEX_FILE="${WALLPAPER_DIR}/.dms-wallpaper-shuffler/wallpaper_current_index"
+TOTAL_FILE="${WALLPAPER_DIR}/.dms-wallpaper-shuffler/wallpaper_total"
+
+mkdir -p "${WALLPAPER_DIR}/.dms-wallpaper-shuffler"
+
+if [ ! -d "$WALLPAPER_DIR" ]; then
+	notify-send -a "DMS Wallpaper Shuffler" "Error: wallpaper directory ${WALLPAPER_DIR} does not exist." "Please specify a valid directory."
+	exit 1
+fi
+
+create_shuffle_list() {
+	echo "Creating new shuffle list..." >&2
+
+	find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.bmp" -o -iname "*.gif" -o -iname "*.webp" \) >"$SHUFFLE_FILE.tmp"
+
+	if [ ! -s "$SHUFFLE_FILE.tmp" ]; then
+		rm -f "$SHUFFLE_FILE.tmp"
+		echo "Error: No wallpaper images found in $WALLPAPER_DIR" >&2
+		exit 1
+	fi
+
+	shuf "$SHUFFLE_FILE.tmp" >"$SHUFFLE_FILE"
+	rm "$SHUFFLE_FILE.tmp"
+
+	wc -l <"$SHUFFLE_FILE" >"$TOTAL_FILE"
+	echo "0" >"$CURRENT_INDEX_FILE"
+}
+
+get_next_wallpaper() {
+	# Create shuffle list if it doesn't exist or is empty
+	if [ ! -f "$SHUFFLE_FILE" ] || [ ! -s "$SHUFFLE_FILE" ]; then
+		create_shuffle_list
+	fi
+
+	# Get current index, default to 0 if file doesn't exist
+	local current_index=0
+	[ -f "$CURRENT_INDEX_FILE" ] && current_index=$(<"$CURRENT_INDEX_FILE")
+
+	# Get total number of wallpapers
+	local total_wallpapers=$(wc -l <"$SHUFFLE_FILE")
+
+	# If we've reached the end, create a new shuffle list
+	if [ "$current_index" -ge "$total_wallpapers" ]; then
+		create_shuffle_list
+		current_index=0
+	fi
+
+	# Get the next wallpaper (add 1 since sed uses 1-based indexing)
+	local next_wallpaper=$(sed -n "$((current_index + 1))p" "$SHUFFLE_FILE")
+
+	# Increment index for next time
+	echo "$((current_index + 1))" >"$CURRENT_INDEX_FILE"
+
+	echo "$next_wallpaper"
+}
+
+# Get next wallpaper from shuffle list
+NEXT_WALLPAPER=$(get_next_wallpaper)
+
+dms ipc call wallpaper set "$NEXT_WALLPAPER"

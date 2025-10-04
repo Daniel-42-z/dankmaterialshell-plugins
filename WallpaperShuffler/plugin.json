@@ -1,0 +1,15 @@
+{
+	"id": "wallpaperShufflerPlugin",
+	"type": "daemon",
+	"name": "Wallpaper Shuffler",
+	"description": "Shuffles wallpapers, found recursively inside the folder you specify",
+	"version": "0.0.1",
+	"author": "Daniel-42-z",
+	"icon": "wallpaper",
+	"component": "./WallpaperShufflerDaemon.qml",
+	"settings": "./WallpaperShufflerSettings.qml",
+	"permissions": [
+		"settings_read",
+		"settings_write"
+	]
+}

@@ -34,11 +34,13 @@ PluginSettings {
         leftIcon: "schedule"
     }
 
-    StyledText {
-        width: parent.width
-        text: "💡 Tip: The script at ~/.local/bin/power-usage-basic.sh must be executable and return power usage in the format '4.2W'"
-        font.pixelSize: Theme.fontSizeSmall
-        color: Theme.surfaceVariantText
-        wrapMode: Text.WordWrap
-    }
+	SelectionSetting {
+		settingKey: "selectedPopout"
+		label: "Popup to Open when Clicked"
+		options: [
+			{label: "Battery Info", value: "battery"},
+			{label: "Task Manager/Process List", value: "processList"}
+		]
+		defaultValue: "battery"
+	}
 }

@@ -7,77 +7,111 @@ import qs.Widgets
 import qs.Modules.Plugins
 
 PluginComponent {
-    id: root
+	id: root
 
-    property string powerUsage: "..."
-    property int refreshInterval: pluginData.refreshInterval || 5000
-    property string scriptPath: Qt.resolvedUrl("power-usage.sh").toString().replace("file://", "")
+	property string powerUsage: "..."
+	property int refreshInterval: pluginData.refreshInterval || 5000
+	property string scriptPath: Qt.resolvedUrl("power-usage.sh").toString().replace("file://", "")
 
-    Process {
-        id: powerProcess
-        command: ["sh", root.scriptPath]
-        running: false
+	property var popoutService: null
 
-        stdout: SplitParser {
-            onRead: data => {
-                root.powerUsage = data.trim()
-            }
-        }
+	property string selectedPopout: pluginData.selectedPopout || "battery"
 
-        onRunningChanged: {
-            if (!running) {
-                console.log("Power usage updated:", root.powerUsage)
-            }
-        }
-    }
+	property var popoutActions: ({
+			"battery": (x, y, w, s, scr) => popoutService?.toggleBattery(x, y, w, s, scr),
+			"processList": (x, y, w, s, scr) => popoutService?.toggleProcessList(x, y, w, s, scr)
+		})
 
-    Timer {
-        interval: root.refreshInterval
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            powerProcess.running = true
-        }
-    }
+	property var popoutNames: ({
+			"battery": "Battery Info",
+			"processList": "Process List"
+		})
 
-    horizontalBarPill: Component {
-        Row {
-            spacing: Theme.spacingXS
+	pillClickAction: (x, y, width, section, screen) => {
+		if (popoutActions[selectedPopout]) {
+			popoutActions[selectedPopout](x, y, width, section, screen);
+		}
+	}
 
-            StyledText {
-                text: "󰠠 "
-                font.pixelSize: Theme.fontSizeMedium
-                color: Theme.surfaceText
-                anchors.verticalCenter: parent.verticalCenter
-            }
+	Process {
+		id: powerProcess
+		command: ["sh", root.scriptPath]
+		running: false
 
-            StyledText {
-                text: root.powerUsage
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.surfaceText
-                anchors.verticalCenter: parent.verticalCenter
-            }
-        }
-    }
+		stdout: SplitParser {
+			onRead: data => {
+				root.powerUsage = data.trim();
+			}
+		}
 
-    verticalBarPill: Component {
-        Column {
-            spacing: Theme.spacingXS
+		onRunningChanged: {
+			if (!running) {
+				console.log("Power usage updated: ", root.powerUsage);
+			}
+		}
+	}
 
-            StyledText {
-                text: "󰠠 "
-                font.pixelSize: Theme.fontSizeMedium
-                color: Theme.surfaceText
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+	Timer {
+		interval: root.refreshInterval
+		running: true
+		repeat: true
+		triggeredOnStart: true
+		onTriggered: {
+			powerProcess.running = true;
+		}
+	}
 
-            StyledText {
-                text: root.powerUsage
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.surfaceText
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-        }
-    }
+	horizontalBarPill: Component {
+		Row {
+			spacing: Theme.spacingXS
+
+// 			DankIcon {
+// 				name: "ac-adapter-symbolic"
+// 				color: Theme.primary
+// 				font.pixelSize: Theme.iconSize - 6
+// 				anchors.verticalCenter: parent.verticalCenter
+// 			}
+
+			StyledText {
+			    text: "󰠠 "
+			    font.pixelSize: Theme.fontSizeMedium
+			    color: Theme.surfaceText
+			    anchors.verticalCenter: parent.verticalCenter
+			}
+
+			StyledText {
+				text: root.powerUsage
+				font.pixelSize: Theme.fontSizeSmall
+				color: Theme.surfaceText
+				anchors.verticalCenter: parent.verticalCenter
+			}
+		}
+	}
+
+	verticalBarPill: Component {
+		Column {
+			spacing: Theme.spacingXS
+
+// 			DankIcon {
+// 				name: "ac-adapter-symbolic"
+// 				color: Theme.primary
+// 				font.pixelSize: Theme.iconSize - 6
+// 				anchors.verticalCenter: parent.verticalCenter
+// 			}
+
+			StyledText {
+				text: "󰠠 "
+				font.pixelSize: Theme.fontSizeMedium
+				color: Theme.surfaceText
+				anchors.horizontalCenter: parent.horizontalCenter
+			}
+
+			StyledText {
+				text: root.powerUsage
+				font.pixelSize: Theme.fontSizeSmall
+				color: Theme.surfaceText
+				anchors.horizontalCenter: parent.horizontalCenter
+			}
+		}
+	}
 }

@@ -7,111 +7,97 @@ import qs.Widgets
 import qs.Modules.Plugins
 
 PluginComponent {
-	id: root
+    id: root
 
-	property string powerUsage: "..."
-	property int refreshInterval: pluginData.refreshInterval || 5000
-	property string scriptPath: Qt.resolvedUrl("power-usage.sh").toString().replace("file://", "")
+    property string powerUsage: "..."
+    property int refreshInterval: pluginData.refreshInterval || 5000
+    property string scriptPath: Qt.resolvedUrl("power-usage.sh").toString().replace("file://", "")
 
-	property var popoutService: null
+    property var popoutService: null
 
-	property string selectedPopout: pluginData.selectedPopout || "battery"
+    property string selectedPopout: pluginData.selectedPopout || "battery"
 
-	property var popoutActions: ({
-			"battery": (x, y, w, s, scr) => popoutService?.toggleBattery(x, y, w, s, scr),
-			"processList": (x, y, w, s, scr) => popoutService?.toggleProcessList(x, y, w, s, scr)
-		})
+    property var popoutActions: ({
+            "battery": (x, y, w, s, scr) => popoutService?.toggleBattery(x, y, w, s, scr),
+            "processList": (x, y, w, s, scr) => popoutService?.toggleProcessList(x, y, w, s, scr)
+        })
 
-	property var popoutNames: ({
-			"battery": "Battery Info",
-			"processList": "Process List"
-		})
+    property var popoutNames: ({
+            "battery": "Battery Info",
+            "processList": "Process List"
+        })
 
-	pillClickAction: (x, y, width, section, screen) => {
-		if (popoutActions[selectedPopout]) {
-			popoutActions[selectedPopout](x, y, width, section, screen);
-		}
-	}
+    pillClickAction: (x, y, width, section, screen) => {
+        if (popoutActions[selectedPopout]) {
+            popoutActions[selectedPopout](x, y, width, section, screen);
+        }
+    }
 
-	Process {
-		id: powerProcess
-		command: ["sh", root.scriptPath]
-		running: false
+    Process {
+        id: powerProcess
+        command: ["sh", root.scriptPath]
+        running: false
 
-		stdout: SplitParser {
-			onRead: data => {
-				root.powerUsage = data.trim();
-			}
-		}
+        stdout: SplitParser {
+            onRead: data => {
+                root.powerUsage = data.trim();
+            }
+        }
 
-		onRunningChanged: {
-			if (!running) {
-				console.log("Power usage updated: ", root.powerUsage);
-			}
-		}
-	}
+        onRunningChanged: {
+            if (!running) {
+                console.log("Power usage updated: ", root.powerUsage);
+            }
+        }
+    }
 
-	Timer {
-		interval: root.refreshInterval
-		running: true
-		repeat: true
-		triggeredOnStart: true
-		onTriggered: {
-			powerProcess.running = true;
-		}
-	}
+    Timer {
+        interval: root.refreshInterval
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            powerProcess.running = true;
+        }
+    }
 
-	horizontalBarPill: Component {
-		Row {
-			spacing: Theme.spacingXS
+    horizontalBarPill: Component {
+        Row {
+            spacing: Theme.spacingXS
 
-// 			DankIcon {
-// 				name: "ac-adapter-symbolic"
-// 				color: Theme.primary
-// 				font.pixelSize: Theme.iconSize - 6
-// 				anchors.verticalCenter: parent.verticalCenter
-// 			}
+            StyledText {
+                text: "󰠠 "
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.surfaceText
+                anchors.verticalCenter: parent.verticalCenter
+            }
 
-			StyledText {
-			    text: "󰠠 "
-			    font.pixelSize: Theme.fontSizeMedium
-			    color: Theme.surfaceText
-			    anchors.verticalCenter: parent.verticalCenter
-			}
+            StyledText {
+                text: root.powerUsage
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.surfaceText
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+    }
 
-			StyledText {
-				text: root.powerUsage
-				font.pixelSize: Theme.fontSizeSmall
-				color: Theme.surfaceText
-				anchors.verticalCenter: parent.verticalCenter
-			}
-		}
-	}
+    verticalBarPill: Component {
+        Column {
+            spacing: Theme.spacingXS
 
-	verticalBarPill: Component {
-		Column {
-			spacing: Theme.spacingXS
+            StyledText {
+                text: "󰠠 "
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.surfaceText
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-// 			DankIcon {
-// 				name: "ac-adapter-symbolic"
-// 				color: Theme.primary
-// 				font.pixelSize: Theme.iconSize - 6
-// 				anchors.verticalCenter: parent.verticalCenter
-// 			}
-
-			StyledText {
-				text: "󰠠 "
-				font.pixelSize: Theme.fontSizeMedium
-				color: Theme.surfaceText
-				anchors.horizontalCenter: parent.horizontalCenter
-			}
-
-			StyledText {
-				text: root.powerUsage
-				font.pixelSize: Theme.fontSizeSmall
-				color: Theme.surfaceText
-				anchors.horizontalCenter: parent.horizontalCenter
-			}
-		}
-	}
+            StyledText {
+                text: root.powerUsage
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.surfaceText
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+    }
 }

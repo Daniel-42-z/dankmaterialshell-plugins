@@ -10,7 +10,7 @@ PluginComponent {
     id: root
 
     property string powerUsage: "..."
-    property int refreshInterval: pluginData.refreshInterval || 5000
+    property int refreshInterval: (pluginData.refreshInterval || 5) * 1000
     property string scriptPath: Qt.resolvedUrl("power-usage.sh").toString().replace("file://", "")
 
     property var popoutService: null

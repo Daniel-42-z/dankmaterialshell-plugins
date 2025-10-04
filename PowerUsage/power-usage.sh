@@ -7,7 +7,7 @@ if [ -f "${bat_info_path}/power_now" ]; then
 	# Direct power reading exists, so read and convert it
 	# The value is in microwatts, so divide by 1,000,000 to get watts
 	power_microwatts=$(cat "${bat_info_path}/power_now" | xargs)
-	power_watts=$(echo "${power_microwatts}" | awk '{print $1/1e6}')
+	power_watts=$(echo "${power_microwatts}" | awk '{printf "%.2f", $1/1e6}')
 	echo "${power_watts}W"
 	exit 0
 fi
@@ -26,7 +26,7 @@ if [ -f "${bat_info_path}/voltage_now" ]; then
 		current_amps=$(echo "${current_microamps}" | awk '{print $1/1e6}')
 
 		# Calculate power: Power (watts) = Voltage (volts) × Current (amps)
-		power_watts=$(echo "${voltage_volts} ${current_amps}" | awk '{print $1 * $2}')
+		power_watts=$(echo "${voltage_volts} ${current_amps}" | awk '{printf "%.2f", $1 * $2}')
 		echo "${power_watts}W"
 		exit 0
 	fi

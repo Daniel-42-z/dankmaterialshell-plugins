@@ -2,7 +2,7 @@
 	"id": "wallpaperShufflerPlugin",
 	"type": "daemon",
 	"name": "Wallpaper Shuffler",
-	"description": "Shuffles wallpapers, found recursively inside the folder you specify",
+	"description": "Shuffles wallpapers, found recursively inside the folder you specify. Creates a .dms-wallpaper-shuffler folder in your wallpaper directory to store shuffler info, delete it to re-shuffle the same folder",
 	"version": "0.0.1",
 	"author": "Daniel-42-z",
 	"icon": "wallpaper",

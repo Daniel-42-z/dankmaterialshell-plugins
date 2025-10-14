@@ -1,0 +1,1 @@
+**This repo is no longer maintained. The up-to-date repo for the 2 plugins here are [https://github.com/Daniel-42-z/dms-power-usage](https://github.com/Daniel-42-z/dms-power-usage) and [https://github.com/Daniel-42-z/dms-wallpaper-shuffler](https://github.com/Daniel-42-z/dms-wallpaper-shuffler)**
